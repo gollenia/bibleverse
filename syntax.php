@@ -6,10 +6,14 @@
  * @author   Thomas Gollenia <thomas@kids-team.at>
  */
 
+use \dokuwiki\plugin\bibleverse\Utilities;
+
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) die();
 
 if (!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
+
+
 
 /**
  * Topic syntax, displays links to all wiki pages with a certain tag
@@ -85,7 +89,7 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
                     
             $query_array = explode(",", $verse);
             
-            $query = new \Contexis\Models\BibleModel("bibel:" . $query_array[0], $query_array[1]);
+            $query = new \dokuwiki\plugin\bibleverse\Model("bibel:" . $query_array[0], $query_array[1]);
             $query->query();
             $response = $query->get();
 
@@ -104,4 +108,3 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
         return false;
     }
 }
-
