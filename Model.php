@@ -14,7 +14,7 @@ class Model {
     private $base;
 
     private $response = [
-        "book" => ["id" => "", "title" => ""],
+        "book" => ["id" => "", "title" => "", "chapters" => 0],
         "translation" => "",
         "chapter" => "",
         "verses" => []
