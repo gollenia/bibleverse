@@ -14,6 +14,7 @@ class Model {
     private $base;
 
     private $response = [
+        "base" => "",
         "book" => ["id" => "", "title" => "", "chapters" => 0],
         "translation" => "",
         "chapter" => "",
@@ -37,6 +38,7 @@ class Model {
         $this->set_chapter($path[2]);
         $this->set_verses($verses);
         $this->base = $path[0];
+        $this->response['base'] = $this->base;
     }
 
     /**
@@ -54,7 +56,7 @@ class Model {
         $query_result = json_decode(rawWiki($this->base . ":" . $this->book . ":" . $this->chapter));
 
         $this->response["book"] = [
-            "id" => $query_result->book, 
+            "id" => $this->book, 
             "chapters" => $this->count_book_chapters(),
             "title" => $this->get_book_title($this->book, $query_result->book)
         ];
