@@ -1,0 +1,2 @@
+<?php
+$conf['biblepage'] = "bibel";
