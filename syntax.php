@@ -93,7 +93,7 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
             $query->query();
             $response = $query->get();
 
-            $renderer->doc .= "<div class='inline-block' @mouseleave='showverse = false' @mouseenter='showverse = true' x-data='{showverse: false}'><a class='wikilink1' href='{$response['base']}/{$response['book']['id']}/{$response['chapter']}'>$link_text</a><div class='rounded-tl-md rounded-br-md absolute p-4 bg-white max-w-sm shadow-lg' x-show='showverse'>";
+            $renderer->doc .= "<div class='inline-block' @mouseleave='showverse = false' @mouseenter='showverse = true' x-data='{showverse: false}'><a class='wikilink1' href='#'>$link_text</a><div class='rounded-tl-md rounded-br-md absolute p-4 bg-white max-w-sm shadow-lg' x-show='showverse'>";
             $renderer->doc .= "<div class=''><h5>{$response['book']["title"]} {$response['chapter']},{$query_array[1]}</h5><span class='text-xs text-gray'>Nach {$response["translation"]}</span></div><div class='py-4 my-4 border-dotted border-t-2 border-b-2 border-lightgray'>";
             foreach($response["verses"] as $verse) {
                 $renderer->doc .= "<span class=''><sup class='text-gray'>{$verse->verse}</sup>{$verse->text}</span>";
