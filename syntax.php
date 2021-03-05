@@ -6,7 +6,6 @@
  * @author   Thomas Gollenia <thomas@kids-team.at>
  */
 
-use \dokuwiki\plugin\bibleverse\Utilities;
 
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) die();
@@ -87,19 +86,22 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
             $verse = trim($data[0]);
             $link_text = trim($data[1]);
                     
-            $query_array = explode(",", $verse);
+            $query_string = explode(",", $verse);
+            $query_array = explode(":", $query_string[0]);
             
-            $query = new \dokuwiki\plugin\bibleverse\Model("bibel:" . $query_array[0], $query_array[1]);
-            $query->query();
-            $response = $query->get();
+            $book = \dokuwiki\plugin\bibleverse\Book::where("short_name", $query_array[0]);
+            if(!$book) {
+                return false;
+            }
+            $verses = $book->verse($query_array[1], $query_string[1]);
 
             $renderer->doc .= "<div class='inline-block' @mouseleave='showverse = false' @mouseenter='showverse = true' x-data='{showverse: false}'><a class='wikilink1' href='#'>$link_text</a><div class='rounded-tl-md rounded-br-md absolute p-4 bg-white max-w-sm shadow-lg' x-show='showverse'>";
-            $renderer->doc .= "<div class=''><h5>{$response['book']["title"]} {$response['chapter']},{$query_array[1]}</h5><span class='text-xs text-gray'>Nach {$response["translation"]}</span></div><div class='py-4 my-4 border-dotted border-t-2 border-b-2 border-lightgray'>";
-            foreach($response["verses"] as $verse) {
+            $renderer->doc .= "<div class=''><h5>{$book->long_name} {$query_array[1]}</h5><span class='text-xs text-gray'>Nach {$book->translation}</span></div><div class='py-4 my-4 border-dotted border-t-2 border-b-2 border-lightgray'>";
+            foreach($verses as $verse) {
                 $renderer->doc .= "<span class=''><sup class='text-gray'>{$verse->verse}</sup>{$verse->text}</span>";
             }
 
-            $renderer->doc .= "</div><div class='uk-card-footer'><a class='text-blue' href='{$response['base']}/{$response['book']['id']}/{$response['chapter']}'>Zum Kapitel</a></div></div></div>";          
+            $renderer->doc .= "</div><div class=''><a class='text-blue' href='bibel/{$query_array[0]}/{$query_array[1]}'>Zum Kapitel</a></div></div></div>";          
             
             
             return true;
