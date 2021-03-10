@@ -30,11 +30,7 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
      */
     function getType(){ return 'formatting';}
 
-    /**
-     * @return string Paragraph type
-     */
-    function getPType() { return 'normal'; }
-
+    
     /**
      * @return int Sort order
      */
@@ -95,13 +91,14 @@ class syntax_plugin_bibleverse extends DokuWiki_Syntax_Plugin {
             }
             $verses = $book->verse($query_array[1], $query_string[1]);
 
-            $renderer->doc .= "<div class='inline-block' @mouseleave='showverse = false' @mouseenter='showverse = true' x-data='{showverse: false}'><a class='wikilink1' href='#'>$link_text</a><div class='rounded-tl-md rounded-br-md absolute p-4 bg-white max-w-sm shadow-lg' x-show='showverse'>";
-            $renderer->doc .= "<div class=''><h5>{$book->long_name} {$query_array[1]}</h5><span class='text-xs text-gray'>Nach {$book->translation}</span></div><div class='py-4 my-4 border-dotted border-t-2 border-b-2 border-lightgray'>";
+            $renderer->doc .= "<span @mouseleave='showverse = false' @mouseenter='showverse = true' x-data='{showverse: false}'>";
+            $renderer->doc .= "<a class='wikilink1' href='bibel/{$query_array[0]}/{$query_array[1]}'>$link_text</a>";
+            $renderer->doc .= "<span class='block rounded-tl-lg rounded-br-lg absolute p-4 bg-white max-w-sm shadow-lg' x-show='showverse'>";
+            $renderer->doc .= "<span class='block'><span class='h5'>{$book->long_name} {$query_array[1]}</span><span class='block text-xs text-gray-500'>Nach {$book->translation}</span></span><span class='block pt-4 my-4 border-dotted border-t-2 border-gray-200'>";
             foreach($verses as $verse) {
-                $renderer->doc .= "<span class=''><sup class='text-gray'>{$verse->verse}</sup>{$verse->text}</span>";
+                $renderer->doc .= "<span class=''><sup class='text-gray-500'>{$verse->verse}</sup>{$verse->text}</span>";
             }
-
-            $renderer->doc .= "</div><div class=''><a class='text-blue' href='bibel/{$query_array[0]}/{$query_array[1]}'>Zum Kapitel</a></div></div></div>";          
+            $renderer->doc .= "</span></span></span>";          
             
             
             return true;
