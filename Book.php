@@ -52,7 +52,7 @@ class Book
 	 */
 	public static function find(int $id)
 	{
-		$db = new SQLite3(__DIR__ . "/data/schl51.SQLite3");
+		$db = new SQLite3(__DIR__ . "/data/de.SQLite3");
 
 		$statement = $db->prepare("SELECT * FROM books WHERE id = :id ORDER BY 'order'");
 		$statement->bindValue(':value', $id);
