@@ -15,32 +15,34 @@ use SQLite3;
 class Book
 {
 
-	public int $id;
+	public int $id = 0;
+	public string $lang;
 	public string $short_name;
 	public string $long_name;
 	public string $section;
 	public int $order;
 	public int $chapters;
 	public string $testament;
-	public string $number;
+	public string $translation;
 
 	/**
 	 * Construct new Book
 	 *
 	 * @param array $result Array filled wit data from the database
 	 */
-	public function __construct(array $result = [])
+	public function __construct(array $result = [], $lang = 'en')
 	{
-		if (!$result["id"]) return;
+		if (!$result) return;
+		if (!array_key_exists('id', $result) || !$result["id"]) return;
 		if (!empty($result)) {
 			$this->id = $result['id'];
 			$this->short_name = $result['short_name'];
 			$this->long_name = $result['long_name'];
+			$this->translation = '';
+			$this->lang = $lang;
 			$this->section = $result['section'];
-			$this->order = $result['order'];
 			$this->chapters = $result['chapters'];
 			$this->testament = $result['testament'];
-			$this->number = $result['number'];
 		}
 	}
 
@@ -50,20 +52,21 @@ class Book
 	 * @param int $id
 	 * @return Book
 	 */
-	public static function find(int $id)
+	public static function find(int $id, $lang = 'en')
 	{
-		$db = new SQLite3(__DIR__ . "/data/de.SQLite3");
-
-		$statement = $db->prepare("SELECT * FROM books WHERE id = :id ORDER BY 'order'");
-		$statement->bindValue(':value', $id);
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
+		$statement = $db->prepare("SELECT * FROM books WHERE id = :id ORDER BY 'id'");
+		$statement->bindValue(':id', $id);
 
 		$query = $statement->execute();
 		$result = $query->fetchArray();
-		if (!empty($result)) {
-			$instance = new static($result);
+
+		if (!$result) {
+			return new static([]);
 		}
-		return $instance;
+		return new static($result, $lang);
 	}
+
 
 	/**
 	 * Get specified verse (or verses) of given chapter from the instances book
@@ -72,29 +75,29 @@ class Book
 	 * @param string $verse comma separated, from to (with dash) or single verses (separated by ;)
 	 * @return array Verses of given chapter
 	 */
-	public function get_verses(int $chapter, $verse = "")
+	public function verses(int $chapter, $verses = "")
 	{
-		$verses = Verse::where($this, $chapter, $verse);
+		$verses = Verse::where($this, $chapter, $verses);
 		return $verses;
 	}
 
 	/**
-	 * Find book by key => value
+	 * Find one or more books by key => value
 	 * @TODO: Make this function failsave
 	 *
 	 * @param string $key
 	 * @param mixed $value
 	 * @return array with Book instances
 	 */
-	public static function where($key, $value)
+	public static function where($key, $value, $lang = 'en')
 	{
 		if (!in_array($key, ["id", "short_name", "long_name", "section", "order", "chapters", "testament"],)) {
 			return false;
 		}
 
-		$db = new SQLite3(__DIR__ . "/data/schl51.SQLite3");
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
 
-		$statement = $db->prepare("SELECT * FROM books WHERE {$key} = :value ORDER BY 'order'");
+		$statement = $db->prepare("SELECT * FROM books WHERE {$key} = :value ORDER BY 'id'");
 		$statement->bindValue(':value', $value);
 
 		$query = $statement->execute();
@@ -114,22 +117,24 @@ class Book
 		}
 
 		if (count($result) == 0) {
-			return false;
+			return [];
 		}
 
 		return $result;
 	}
 
-	public static function findByName(string $name): self|bool
+	public static function findByName(string $name, $lang = 'en'): self|bool
 	{
-		$db = new SQLite3(__DIR__ . "/data/schl51.SQLite3");
 
-		$statement = $db->prepare("SELECT * FROM books WHERE short_name = :value ORDER BY 'order'");
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
+
+		$statement = $db->prepare("SELECT * FROM books WHERE short_name = :value ORDER BY 'id'");
 
 		$statement->bindValue(':value', $name);
 
 		$query = $statement->execute();
 		$result = $query->fetchArray();
+
 		if ($result) {
 			$instance = new static($result);
 			return $instance;
@@ -142,15 +147,15 @@ class Book
 	 *
 	 * @return array with Book instances
 	 */
-	public static function findAll()
+	public static function findAll($lang = 'en')
 	{
-		$db = new SQLite3(__DIR__ . "/data/de.SQLite3");
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
 
 		$query = $db->query("SELECT * FROM books");
 
 		$result = [];
 		while ($row = $query->fetchArray()) {
-			$instance = new static($row);
+			$instance = new static($row, $lang);
 			array_push($result, $instance);
 		}
 

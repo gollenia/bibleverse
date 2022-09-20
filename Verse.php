@@ -34,13 +34,14 @@ class Verse
 	{
 		if ($result) {
 
-			$this->book = $result['book'];
+
 			$this->text = $result['text'];
 			$this->chapter = $result['chapter'];
 			$this->verse = $result['verse'];
-			$this->linebreak = $result['linebreak'];
 		}
 	}
+
+
 
 	/**
 	 * Parses a verse query and returns a SQL compliant string of verses
@@ -68,13 +69,14 @@ class Verse
 
 	static function where(Book $book, int $chapter, string $verse = "")
 	{
-		$verses = empty($verse) ? "" : " AND verse IN (" . self::parse_verse($verse) . ")";
-		$db = new SQLite3(__DIR__ . "/data/schl51.SQLite3");
+		$verses = empty($verse) ? "" : "AND verse IN (" . self::parse_verse($verse) . ")";
+		$lang = $book->lang;
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
 
-		$statement = $db->prepare("SELECT * FROM verses WHERE (book = :book AND chapter = :chapter {$verses}) ORDER BY 'verse'");
+		$statement = $db->prepare("SELECT * FROM verses WHERE (book_id = :book AND chapter = :chapter " . $verses . ") ORDER BY 'verse'");
 
-		$statement->bindValue(':book', $book->id, PDO::PARAM_INT);
-		$statement->bindValue(':chapter', $chapter, PDO::PARAM_INT);
+		$statement->bindValue(':book', $book->id, SQLITE3_TEXT);
+		$statement->bindValue(':chapter', $chapter, SQLITE3_TEXT);
 
 		$query = $statement->execute();
 
@@ -90,10 +92,10 @@ class Verse
 	}
 
 
-	static function findAll(Book $book, int $chapter)
+	static function findAll(Book $book, int $chapter, $lang = "en")
 	{
-		$db = new SQLite3(__DIR__ . "/data/schl51.SQLite3");
-		$statement = $db->prepare("SELECT * FROM verses WHERE (book = :book AND chapter = :chapter) ORDER BY 'verse'");
+		$db = new SQLite3(__DIR__ . "/data/" . $lang . ".SQLite3");
+		$statement = $db->prepare("SELECT * FROM verses WHERE (book_id = :book AND chapter = :chapter) ORDER BY 'verse'");
 
 		$statement->bindValue(':book', $book->id, PDO::PARAM_INT);
 		$statement->bindValue(':chapter', $chapter, PDO::PARAM_INT);
